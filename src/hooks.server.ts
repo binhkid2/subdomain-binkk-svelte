@@ -8,7 +8,7 @@ export async function handle({ event, resolve }) {
     } catch (error) {
       // If fetch fails, try the fallback URLs
       const fallbackUrls = [
-        
+        "https://subdomain-binkk-svelte.vercel.app/hello",
         "https://bisite.click/hello"
       ];
 
