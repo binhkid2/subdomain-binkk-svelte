@@ -1,32 +1,22 @@
-export async function handle({ event, resolve }) {
-  // if hostname starts with "hello."
+
+import { adminAuth } from "$lib/server/admin";
+import type { Handle } from "@sveltejs/kit";
+
+export const handle = (async ({ event, resolve }) => {
+  const sessionCookie = event.cookies.get("__session");
   if (event.url.hostname.startsWith('hello.')) {
-    try {
-      // Try to fetch the desired URL
-      const response = await fetch('http://localhost:5173/hello');
-      return response;
-    } catch (error) {
-      // If fetch fails, try the fallback URLs
-      const fallbackUrls = [
-        "https://subdomain-binkk-svelte.vercel.app/hello",
-        "https://bisite.click/hello"
-      ];
-
-      for (const url of fallbackUrls) {
-        try {
-          const response = await fetch(url);
-          return response;
-        } catch (error) {
-          // Fetch failed, continue to the next fallback URL
-          continue;
-        }
-      }
-
-      // All fetch attempts failed, return an error response
-      return new Response('Failed to fetch any URL', { status: 500 });
-    }
+ 
+    return Response.redirect('/hello', 302);
+  }
+  try {
+    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie!);
+    event.locals.userID = decodedClaims.uid;
+    console.log("found user id", decodedClaims.uid);
+  } catch (e) {
+    event.locals.userID = null;
+    return resolve(event);
   }
 
-  // otherwise use the default behavior
+
   return resolve(event);
-}
+}) satisfies Handle;
